@@ -2,11 +2,12 @@ package main
 
 import (
 	"./io"
+	"./graph"
 	"fmt"
 )
 
 func main() {
 
 	fmt.Println("Job Shop Scheduling Problem")
-	io.ReadProblem(1)
+	graph.MakeGraph(io.ReadProblem(9))
 }
