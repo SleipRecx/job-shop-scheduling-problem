@@ -2,7 +2,8 @@ package graph
 
 import (
 	"../io"
-	"fmt"
+	"../constants"
+	"math"
 )
 
 type Node struct {
@@ -11,7 +12,7 @@ type Node struct {
 
 type Arc struct {
 	From, To Node
-	Weight     int
+	Weight   int
 	Disjunct bool
 	Pheromone float64
 }
@@ -22,6 +23,39 @@ type Graph struct {
 	NeighbourList map[Node][]Node
 }
 
+// Probability of moving from node i to node j
+func (g *Graph) P(i, j Node) float64 {
+	if !g.isNeighbour(i,j) {
+		return 0.0
+	}
+	edgeBetween := g.findEdge(i,j)
+	over := math.Pow(edgeBetween.Pheromone, constants.PheromoneFactor) * math.Pow(float64(edgeBetween.Weight), constants.WeightFactor)
+
+	under := 0.0
+	for x := range g.NeighbourList[i] {
+		tempEdge := g.findEdge(i, g.NeighbourList[i][x])
+		under += math.Pow(tempEdge.Pheromone, constants.PheromoneFactor) * math.Pow(float64(tempEdge.Weight), constants.WeightFactor)
+	}
+	return over / under
+}
+
+func (g *Graph) isNeighbour(i, j Node) bool {
+	for x := range g.NeighbourList[i] {
+		if g.NeighbourList[i][x] == j {
+			return true
+		}
+	}
+	return false
+}
+
+func (g *Graph) findEdge(from, to Node) Arc {
+	for x := range g.Edges {
+		if g.Edges[x].From == from && g.Edges[x].To == to {
+			return g.Edges[x]
+		}
+	}
+	return Arc{}
+}
 
 func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 	source := Node{-1, -1, 0}
@@ -40,7 +74,7 @@ func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 				node,
 				previous.Time,
 				false,
-				0.0 })
+				constants.InitialPheromone})
 			nodes = append(nodes, node)
 			previous = node
 		}
@@ -48,7 +82,7 @@ func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 			sink,
 			previous.Time,
 			false,
-			0.0})
+			constants.InitialPheromone})
 	}
 	nodes = append(nodes, sink)
 
@@ -60,14 +94,16 @@ func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 					nodePtrs[j],
 					nodePtrs[i].Time,
 					true,
-					0.0})
+					constants.InitialPheromone})
 			}
 		}
 	}
 
 	neighbours := make(map[Node][]Node)
 	for _, edge := range arcs {
-		neighbours[edge.From] = append(neighbours[edge.From], edge.To)
+		if edge.From != edge.To {
+			neighbours[edge.From] = append(neighbours[edge.From], edge.To)
+		}
 	}
 
 	return Graph{arcs, nodes, neighbours}
