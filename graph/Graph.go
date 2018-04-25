@@ -11,12 +11,13 @@ type Node struct {
 
 type ConjunctiveArc struct {
 	From, To *Node
+	Time     int
 }
 
 type DisjunctiveArc struct {
 	From, To *Node
+	Time     int
 }
-
 
 func MakeGraph(problemFormulation io.ProblemFormulation) {
 	source := Node{-1, -1, 0}
@@ -32,11 +33,11 @@ func MakeGraph(problemFormulation io.ProblemFormulation) {
 		for _, requirement := range requirements {
 			node := Node{jobId, requirement.Machine, requirement.Time}
 			machineToNodesMap[requirement.Machine] = append(machineToNodesMap[requirement.Machine], &node)
-			conjunctiveArcs = append(conjunctiveArcs, ConjunctiveArc{&previous, &node})
+			conjunctiveArcs = append(conjunctiveArcs, ConjunctiveArc{&previous, &node, previous.Time})
 			nodes = append(nodes, &node)
 			previous = node
 		}
-		conjunctiveArcs = append(conjunctiveArcs, ConjunctiveArc{&previous, &sink})
+		conjunctiveArcs = append(conjunctiveArcs, ConjunctiveArc{&previous, &sink, previous.Time})
 	}
 	nodes = append(nodes, &sink)
 
@@ -44,7 +45,9 @@ func MakeGraph(problemFormulation io.ProblemFormulation) {
 	for _, nodePtrs := range machineToNodesMap {
 		for i := range nodePtrs {
 			for j := i; j < len(nodePtrs); j++ {
-				disjunctiveArcs = append(disjunctiveArcs, DisjunctiveArc{nodePtrs[i], nodePtrs[j]})
+				disjunctiveArcs = append(disjunctiveArcs, DisjunctiveArc{nodePtrs[i],
+					nodePtrs[j],
+					nodePtrs[i].Time})
 			}
 		}
 	}
