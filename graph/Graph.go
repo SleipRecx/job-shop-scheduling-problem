@@ -53,10 +53,7 @@ func MakeGraph(problemFormulation io.ProblemFormulation) {
 	}
 
 	neighbours := make(map[Node][]Node)
-	for _, edge := range conjunctiveArcs {
-		neighbours[edge.From] = append(neighbours[edge.From], edge.To)
-	}
-	for _, edge := range disjunctiveArcs {
+	for _, edge := range arcs {
 		neighbours[edge.From] = append(neighbours[edge.From], edge.To)
 	}
 }
