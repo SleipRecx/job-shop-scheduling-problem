@@ -13,13 +13,17 @@ type Arc struct {
 	From, To Node
 	Weight     int
 	Disjunct bool
+	Pheromone float64
 }
 
 type Graph struct {
 	Edges []Arc
+	Nodes []Node
+	NeighbourList map[Node][]Node
 }
 
-func MakeGraph(problemFormulation io.ProblemFormulation) {
+
+func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 	source := Node{-1, -1, 0}
 	sink := Node{-1, -1, 0}
 	nodes := []Node{source}
@@ -32,11 +36,19 @@ func MakeGraph(problemFormulation io.ProblemFormulation) {
 		for _, requirement := range requirements {
 			node := Node{jobId, requirement.Machine, requirement.Time}
 			machineToNodesMap[requirement.Machine] = append(machineToNodesMap[requirement.Machine], node)
-			arcs = append(arcs, Arc{previous, node, previous.Time, false})
+			arcs = append(arcs, Arc{previous,
+				node,
+				previous.Time,
+				false,
+				0.0 })
 			nodes = append(nodes, node)
 			previous = node
 		}
-		arcs = append(arcs, Arc{previous, sink, previous.Time, false})
+		arcs = append(arcs, Arc{previous,
+			sink,
+			previous.Time,
+			false,
+			0.0})
 	}
 	nodes = append(nodes, sink)
 
@@ -47,7 +59,8 @@ func MakeGraph(problemFormulation io.ProblemFormulation) {
 				arcs = append(arcs, Arc{nodePtrs[i],
 					nodePtrs[j],
 					nodePtrs[i].Time,
-					true})
+					true,
+					0.0})
 			}
 		}
 	}
@@ -56,4 +69,6 @@ func MakeGraph(problemFormulation io.ProblemFormulation) {
 	for _, edge := range arcs {
 		neighbours[edge.From] = append(neighbours[edge.From], edge.To)
 	}
+
+	return Graph{arcs, nodes, neighbours}
 }
