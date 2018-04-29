@@ -5,6 +5,7 @@ import (
 	_ "../constants"
 	"fmt"
 	"math"
+	"math/rand"
 )
 
 func removeFromList(list []graph.Node, element graph.Node) []graph.Node {
@@ -18,22 +19,30 @@ func removeFromList(list []graph.Node, element graph.Node) []graph.Node {
 }
 
 
-func listScheduler(problemGraph graph.Graph) {
+func listScheduler(problemGraph graph.Graph) []graph.Node{
 	partialSolution := make([]graph.Node, 0)
 	unvisited := make([]graph.Node, len(problemGraph.Nodes))
 	copy(unvisited, problemGraph.Nodes)
 	for range problemGraph.Nodes {
 		unvisitedPrime := restrict(partialSolution, unvisited)
-		nodeStar := choose(unvisitedPrime)
+		nodeStar := chooseRandom(unvisitedPrime)
+		nodeStar.StartTime = earliestStartTime(nodeStar, partialSolution)
 		partialSolution = append(partialSolution, nodeStar)
 		unvisited = removeFromList(unvisited, nodeStar)
 	}
+	return partialSolution
 }
 
-func choose(nodes []graph.Node) graph.Node {
-
-	return graph.Node{}
+func calculateMakespan(solution []graph.Node) int {
+	max := 0
+	for x := range solution {
+		if time := solution[x].StartTime + solution[x].Time; time > max {
+			max = time
+		}
+	}
+	return max
 }
+
 
 func earliestCompletionTime(node graph.Node, partialSolution []graph.Node) int {
 	if len(partialSolution) == 0 {
@@ -42,14 +51,17 @@ func earliestCompletionTime(node graph.Node, partialSolution []graph.Node) int {
 	MachineTimer := -1
 	JobTimer := -1
 	for x := range partialSolution {
-		if node.Job == partialSolution[x].Job && partialSolution[x].StartTime > JobTimer {
-			JobTimer = partialSolution[x].StartTime
+		if node.Job == partialSolution[x].Job && partialSolution[x].StartTime + partialSolution[x].Time > JobTimer {
+			JobTimer = partialSolution[x].StartTime + partialSolution[x].Time
 		}
-		if node.Machine == partialSolution[x].Machine && partialSolution[x].StartTime > MachineTimer {
-			MachineTimer = partialSolution[x].StartTime
+		if node.Machine == partialSolution[x].Machine && partialSolution[x].StartTime + partialSolution[x].Time > MachineTimer {
+			MachineTimer = partialSolution[x].StartTime + partialSolution[x].Time
 		}
 	}
 	earliestComp := math.Max(float64(JobTimer),float64(MachineTimer)) + float64(node.Time)
+	if earliestComp == -1 {
+		return node.Time
+	}
 	return int(earliestComp)
 }
 
@@ -60,15 +72,15 @@ func earliestStartTime(node graph.Node, partialSolution []graph.Node) int {
 	MachineTimer := -1
 	JobTimer := -1
 	for x := range partialSolution {
-		if node.Job == partialSolution[x].Job && partialSolution[x].StartTime > JobTimer {
-			JobTimer = partialSolution[x].StartTime
+		if node.Job == partialSolution[x].Job && partialSolution[x].StartTime + partialSolution[x].Time > JobTimer {
+			JobTimer = partialSolution[x].StartTime + partialSolution[x].Time
 		}
-		if node.Machine == partialSolution[x].Machine && partialSolution[x].StartTime > MachineTimer {
-			MachineTimer = partialSolution[x].StartTime
+		if node.Machine == partialSolution[x].Machine && partialSolution[x].StartTime + partialSolution[x].Time > MachineTimer {
+			MachineTimer = partialSolution[x].StartTime + partialSolution[x].Time
 		}
 	}
 	earliestComp := math.Max(float64(JobTimer),float64(MachineTimer))
-	return int(earliestComp)
+	return int(math.Max(earliestComp, 0))
 }
 
 func restrict(partialSolution []graph.Node, unVisited []graph.Node) []graph.Node {
@@ -80,14 +92,20 @@ func restrict(partialSolution []graph.Node, unVisited []graph.Node) []graph.Node
 		}
 	}
 	for x := range unVisited {
-		if earliestStartTime(unVisited[x], partialSolution) < tStar {
+		if earliestStartTime(unVisited[x], partialSolution) <= tStar {
 			restrictedSet = append(restrictedSet, unVisited[x])
 		}
 	}
 	return restrictedSet
 }
 
+func chooseRandom(candidates []graph.Node) graph.Node {
+	return candidates[rand.Intn(len(candidates))]
+}
+
 func ACO(problemGraph graph.Graph) {
 	fmt.Println("Running ACO")
-	listScheduler(problemGraph)
+	solution := listScheduler(problemGraph)
+	fmt.Println("Solution: ", solution)
+	fmt.Println("Makespan: ", calculateMakespan(solution))
 }

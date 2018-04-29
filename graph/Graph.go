@@ -60,7 +60,7 @@ func (g *Graph) findEdge(from, to Node) Arc {
 func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 	source := Node{-1, -1, 0, 0}
 	sink := Node{-1, -1, 0, 0}
-	nodes := []Node{source}
+	nodes := []Node{}
 	arcs := make([]Arc, 0)
 	machineToNodesMap := make(map[int][]Node)
 
@@ -84,7 +84,6 @@ func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 			false,
 			constants.InitialPheromone})
 	}
-	nodes = append(nodes, sink)
 
 	// Create disjunctive arcs (jobs belonging to machines)
 	for _, nodePtrs := range machineToNodesMap {
