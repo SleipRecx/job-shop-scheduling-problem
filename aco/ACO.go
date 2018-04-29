@@ -17,10 +17,6 @@ func removeFromList(list []graph.Node, element graph.Node) []graph.Node {
 	return newList
 }
 
-func evaluate(permutation []graph.Node) {
-
-}
-
 
 func listScheduler(problemGraph graph.Graph) {
 	partialSolution := make([]graph.Node, 0)
@@ -57,8 +53,38 @@ func earliestCompletionTime(node graph.Node, partialSolution []graph.Node) int {
 	return int(earliestComp)
 }
 
-func restrict(partialSolution []graph.Node, unVisited []graph.Node) []graph.Node {
+func earliestStartTime(node graph.Node, partialSolution []graph.Node) int {
+	if len(partialSolution) == 0 {
+		return 0
+	}
+	MachineTimer := -1
+	JobTimer := -1
+	for x := range partialSolution {
+		if node.Job == partialSolution[x].Job && partialSolution[x].StartTime > JobTimer {
+			JobTimer = partialSolution[x].StartTime
+		}
+		if node.Machine == partialSolution[x].Machine && partialSolution[x].StartTime > MachineTimer {
+			MachineTimer = partialSolution[x].StartTime
+		}
+	}
+	earliestComp := math.Max(float64(JobTimer),float64(MachineTimer))
+	return int(earliestComp)
+}
 
+func restrict(partialSolution []graph.Node, unVisited []graph.Node) []graph.Node {
+	tStar := math.MaxInt32
+	restrictedSet := make([]graph.Node, 0)
+	for x := range unVisited {
+		if t := earliestCompletionTime(unVisited[x], partialSolution); t  < tStar {
+			tStar = t
+		}
+	}
+	for x := range unVisited {
+		if earliestStartTime(unVisited[x], partialSolution) < tStar {
+			restrictedSet = append(restrictedSet, unVisited[x])
+		}
+	}
+	return restrictedSet
 }
 
 func ACO(problemGraph graph.Graph) {
