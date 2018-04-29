@@ -7,7 +7,7 @@ import (
 )
 
 type Node struct {
-	Job, Machine, Time int
+	Job, Machine, Time, StartTime int
 }
 
 type Arc struct {
@@ -58,8 +58,8 @@ func (g *Graph) findEdge(from, to Node) Arc {
 }
 
 func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
-	source := Node{-1, -1, 0}
-	sink := Node{-1, -1, 0}
+	source := Node{-1, -1, 0, 0}
+	sink := Node{-1, -1, 0, 0}
 	nodes := []Node{source}
 	arcs := make([]Arc, 0)
 	machineToNodesMap := make(map[int][]Node)
@@ -68,7 +68,7 @@ func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 	for jobId, requirements := range problemFormulation.Sequences {
 		previous := source
 		for _, requirement := range requirements {
-			node := Node{jobId, requirement.Machine, requirement.Time}
+			node := Node{jobId, requirement.Machine, requirement.Time, 0}
 			machineToNodesMap[requirement.Machine] = append(machineToNodesMap[requirement.Machine], node)
 			arcs = append(arcs, Arc{previous,
 				node,

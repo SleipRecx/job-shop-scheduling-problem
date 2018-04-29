@@ -16,6 +16,10 @@ func removeFromList(list []graph.Node, element graph.Node) []graph.Node {
 	return newList
 }
 
+func evaluate(permutation []graph.Node) {
+
+}
+
 
 func listScheduler(problemGraph graph.Graph) {
 	partialSolution := make([]graph.Node, 0)
