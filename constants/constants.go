@@ -6,4 +6,6 @@ var (
 	EvaporationRate 	float64
 	InitialPheromone 	float64
 	Ants 				int
+	NMachines			int
+	NJobs				int
 )

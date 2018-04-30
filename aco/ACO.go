@@ -120,9 +120,21 @@ func chooseRandom(candidates []graph.Node) graph.Node {
 
 func ACO(problemGraph graph.Graph) {
 	fmt.Println("Running ACO")
-	solution := listScheduler(problemGraph)
-	fmt.Println("Solution: ", solution)
-	fmt.Println("Makespan: ", calculateMakespan(solution))
-	orders := graph.NodeListToOrderList(solution)
-	gantt.CreateChart("03 - Program Outputs/Chart.xlsx", 6, 6, orders)
+	best := math.MaxInt32
+	var bestSol []graph.Node
+	for i := 0; i < 10000; i++ {
+		solution := listScheduler(problemGraph)
+		//fmt.Println("Solution: ", solution)
+		makeSpan := calculateMakespan(solution)
+		//fmt.Println("Makespan: ", makeSpan)
+		if makeSpan < best {
+			best = makeSpan
+			bestSol = solution
+		}
+
+	}
+	fmt.Println("-------")
+	fmt.Println("Best makespan:", best)
+	orders := graph.NodeListToOrderList(bestSol)
+	gantt.CreateChart("03 - Program Outputs/Chart.xlsx", orders)
 }

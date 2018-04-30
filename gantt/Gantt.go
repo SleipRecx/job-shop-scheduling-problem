@@ -5,6 +5,7 @@ import (
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/lucasb-eyer/go-colorful"
 	"strconv"
+	"../constants"
 )
 
 // TODO: Move and change to represent actual job etc.
@@ -15,9 +16,9 @@ type Order struct {
 	Duration  int
 }
 
-func CreateChart(path string, nMachines int, nJobs int, orders []Order) {
+func CreateChart(path string, orders []Order) {
 	xlsx := excelize.NewFile()
-	xlsx.SetColWidth("Sheet1", "B", "ZZ", 3)
+	xlsx.SetColWidth("Sheet1", "B", "ZZZ", 3)
 	xlsx.SetColWidth("Sheet1", "A", "A", 5)
 
 	machineStyle, err := xlsx.NewStyle(`{"alignment":{"horizontal": "center"}, 
@@ -26,7 +27,7 @@ func CreateChart(path string, nMachines int, nJobs int, orders []Order) {
 		fmt.Println(err)
 	}
 	// Machine labels
-	for i := 0; i < nMachines; i++ {
+	for i := 0; i < constants.NMachines; i++ {
 		label := "M" + strconv.Itoa(i)
 		cell := "A" + strconv.Itoa(i+1)
 		xlsx.SetCellValue("Sheet1", cell, label)
@@ -34,7 +35,7 @@ func CreateChart(path string, nMachines int, nJobs int, orders []Order) {
 	}
 	// Time numbering
 	for i := 0; i < 200; i++ {
-		row := strconv.Itoa(nMachines + 1)
+		row := strconv.Itoa(constants.NMachines + 1)
 		col := timeToExcelCol(i)
 		if i%5 == 0 {
 			xlsx.SetCellValue("Sheet1", col+row, i)
@@ -42,13 +43,13 @@ func CreateChart(path string, nMachines int, nJobs int, orders []Order) {
 	}
 	// Colors
 	colorMap := make(map[int]string)
-	palette := colorful.FastHappyPalette(nJobs)
+	palette := colorful.FastHappyPalette(constants.NJobs)
 	for i, color := range palette {
 		colorMap[i] = color.Hex()
 	}
 	// Color Legend
-	legendRow := nMachines + 2
-	for i := 0; i < nJobs; i++ {
+	legendRow := constants.NMachines + 2
+	for i := 0; i < constants.NJobs; i++ {
 		row := strconv.Itoa(legendRow + i)
 		col := "A"
 		cellStyle, err := xlsx.NewStyle(generateBGStyle(colorMap[i]))
