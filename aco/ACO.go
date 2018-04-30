@@ -3,8 +3,8 @@ package aco
 import (
 	"../graph"
 	_ "../constants"
-	"../gantt"
 	"../util"
+	"../gantt"
 	"fmt"
 	"math"
 	"math/rand"
@@ -124,21 +124,37 @@ func numberOfAnts(problemGraph graph.Graph) int {
 
 func ACO(problemGraph graph.Graph) {
 	fmt.Println("Running ACO")
-	best := math.MaxInt32
-	var bestSol []graph.Node
-	for i := 0; i < 10000; i++ {
-		solution := listScheduler(problemGraph)
-		//fmt.Println("Solution: ", solution)
-		makeSpan := calculateMakespan(solution)
-		//fmt.Println("Makespan: ", makeSpan)
-		if makeSpan < best {
-			best = makeSpan
-			bestSol = solution
+	var iterationBest []graph.Node		//Sib
+	var bestSoFar []graph.Node			//Sbs
+	var restartBest []graph.Node		//Srb
+	convergenceFactor := 0.0			// cf
+	bsUpdate := false
+	numberOfAnts := numberOfAnts(problemGraph)
+	InitializePheromoneValues(T)
+	for true {
+		solutions := make([][]graph.Node, 0)
+		for i := 0; i < numberOfAnts; i++ {
+			solutions = append(solutions, listScheduler(problemGraph))
 		}
-
+		ApplyLocalSearch(solutions)
+		iterationBest = SolutionWithMinimalMakeSpan(solutions)
+		EliteAction(iterationBest)
+		Update(iterationBest, restartBest, bestSoFar)
+		ApplyPheromoneUpdate(convergenceFactor, bsUpdate, T, restartBest, bestSoFar)
+		if convergenceFactor > 0.99 {
+			if bsUpdate {
+				ResetPheromoneValues(T)
+				restartBest = nil
+				bsUpdate = false
+			} else {
+				bsUpdate = true
+			}
+		}
 	}
-	fmt.Println("-------")
-	fmt.Println("Best makespan:", best)
-	orders := graph.NodeListToOrderList(bestSol)
+	fmt.Println("Done!")
+	fmt.Println("Best makespan:", calculateMakespan(bestSoFar))
+	orders := graph.NodeListToOrderList(bestSoFar)
 	gantt.CreateChart("03 - Program Outputs/Chart.xlsx", orders)
+
+
 }
