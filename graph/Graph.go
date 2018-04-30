@@ -7,7 +7,7 @@ import (
 )
 
 type Node struct {
-	Job, Machine, Time, StartTime int
+	Job, Machine, Time, StartTime, TechStep int
 }
 
 type Arc struct {
@@ -58,8 +58,8 @@ func (g *Graph) findEdge(from, to Node) Arc {
 }
 
 func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
-	source := Node{-1, -1, 0, 0}
-	sink := Node{-1, -1, 0, 0}
+	source := Node{-1, -1, 0, 0, -1}
+	sink := Node{-1, -1, 0, 0, -1}
 	nodes := []Node{}
 	arcs := make([]Arc, 0)
 	machineToNodesMap := make(map[int][]Node)
@@ -67,8 +67,8 @@ func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 	// Create conjunctive arcs (technological order)
 	for jobId, requirements := range problemFormulation.Sequences {
 		previous := source
-		for _, requirement := range requirements {
-			node := Node{jobId, requirement.Machine, requirement.Time, 0}
+		for index, requirement := range requirements {
+			node := Node{jobId, requirement.Machine, requirement.Time, 0, index}
 			machineToNodesMap[requirement.Machine] = append(machineToNodesMap[requirement.Machine], node)
 			arcs = append(arcs, Arc{previous,
 				node,

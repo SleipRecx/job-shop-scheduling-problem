@@ -87,16 +87,30 @@ func restrict(partialSolution []graph.Node, unVisited []graph.Node) []graph.Node
 	tStar := math.MaxInt32
 	restrictedSet := make([]graph.Node, 0)
 	for x := range unVisited {
-		if t := earliestCompletionTime(unVisited[x], partialSolution); t  < tStar {
+		if t := earliestCompletionTime(unVisited[x], partialSolution); t  < tStar && preStepsExecuted(unVisited[x], partialSolution){
 			tStar = t
 		}
 	}
 	for x := range unVisited {
-		if earliestStartTime(unVisited[x], partialSolution) <= tStar {
+		if earliestStartTime(unVisited[x], partialSolution) <= tStar && preStepsExecuted(unVisited[x],partialSolution) {
+
 			restrictedSet = append(restrictedSet, unVisited[x])
 		}
 	}
 	return restrictedSet
+}
+
+func preStepsExecuted(node graph.Node, partialSolution []graph.Node) bool {
+	counter := 0
+	for x := range partialSolution {
+		if partialSolution[x].Job == node.Job {
+			counter++
+		}
+	}
+	if counter == node.TechStep {
+		return true
+	}
+	return false
 }
 
 func chooseRandom(candidates []graph.Node) graph.Node {
