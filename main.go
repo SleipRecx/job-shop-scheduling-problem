@@ -14,7 +14,7 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	fmt.Println("Job Shop Scheduling Problem")
 	problemFormulation := io.ReadProblem(1)
-	constants.InitialPheromone = 1.0
+	constants.InitialPheromone = 0.5
 	constants.Ants = 2
 	constants.WeightFactor = 1.0
 	constants.PheromoneFactor = 1.0

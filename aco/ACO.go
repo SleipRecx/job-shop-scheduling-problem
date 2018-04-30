@@ -2,12 +2,13 @@ package aco
 
 import (
 	"../graph"
-	_ "../constants"
+	"../constants"
 	"../util"
 	"../gantt"
 	"fmt"
 	"math"
 	"math/rand"
+	"go/constant"
 )
 
 func removeFromList(list []graph.Node, element graph.Node) []graph.Node {
@@ -20,25 +21,30 @@ func removeFromList(list []graph.Node, element graph.Node) []graph.Node {
 	return newList
 }
 
+type Solution struct {
+	StartTimeMap map[graph.Node] int
+	Nodes []graph.Node
+}
 
-func listScheduler(problemGraph graph.Graph) []graph.Node{
+func listScheduler(problemGraph graph.Graph) Solution{
+	startTimeMap := make(map[graph.Node]int)
 	partialSolution := make([]graph.Node, 0)
 	unvisited := make([]graph.Node, len(problemGraph.Nodes))
 	copy(unvisited, problemGraph.Nodes)
 	for range problemGraph.Nodes {
 		unvisitedPrime := restrict(partialSolution, unvisited)
 		nodeStar := chooseRandom(unvisitedPrime)
-		nodeStar.StartTime = earliestStartTime(nodeStar, partialSolution)
+		startTimeMap[nodeStar] = earliestStartTime(nodeStar, partialSolution)
 		partialSolution = append(partialSolution, nodeStar)
 		unvisited = removeFromList(unvisited, nodeStar)
 	}
-	return partialSolution
+	return Solution{startTimeMap,partialSolution}
 }
 
-func calculateMakespan(solution []graph.Node) int {
+func calculateMakespan(solution Solution) int {
 	max := 0
-	for x := range solution {
-		if time := solution[x].StartTime + solution[x].Time; time > max {
+	for x := range solution.Nodes {
+		if time := solution.StartTimeMap[solution.Nodes[x]] + solution.Nodes[x].Time; time > max {
 			max = time
 		}
 	}
@@ -46,18 +52,18 @@ func calculateMakespan(solution []graph.Node) int {
 }
 
 
-func earliestCompletionTime(node graph.Node, partialSolution []graph.Node) int {
-	if len(partialSolution) == 0 {
+func earliestCompletionTime(node graph.Node, ps Solution) int {
+	if len(ps.Nodes) == 0 {
 		return node.Time
 	}
 	MachineTimer := -1
 	JobTimer := -1
-	for x := range partialSolution {
-		if node.Job == partialSolution[x].Job && partialSolution[x].StartTime + partialSolution[x].Time > JobTimer {
-			JobTimer = partialSolution[x].StartTime + partialSolution[x].Time
+	for x := range ps.Nodes {
+		if node.Job == ps.Nodes[x].Job && ps.StartTimeMap[ps.Nodes[x]] + ps.Nodes[x].Time > JobTimer {
+			JobTimer = ps.StartTimeMap[ps.Nodes[x]] + ps.Nodes[x].Time
 		}
-		if node.Machine == partialSolution[x].Machine && partialSolution[x].StartTime + partialSolution[x].Time > MachineTimer {
-			MachineTimer = partialSolution[x].StartTime + partialSolution[x].Time
+		if node.Machine == ps.Nodes[x].Machine && ps.StartTimeMap[ps.Nodes[x]] + ps.Nodes[x].Time > MachineTimer {
+			MachineTimer = ps.StartTimeMap[ps.Nodes[x]] + ps.Nodes[x].Time
 		}
 	}
 	earliestComp := util.Max(JobTimer, MachineTimer + node.Time)
@@ -67,18 +73,18 @@ func earliestCompletionTime(node graph.Node, partialSolution []graph.Node) int {
 	return earliestComp
 }
 
-func earliestStartTime(node graph.Node, partialSolution []graph.Node) int {
-	if len(partialSolution) == 0 {
+func earliestStartTime(node graph.Node, ps Solution) int {
+	if len(ps.Nodes) == 0 {
 		return 0
 	}
 	MachineTimer := -1
 	JobTimer := -1
-	for x := range partialSolution {
-		if node.Job == partialSolution[x].Job && partialSolution[x].StartTime + partialSolution[x].Time > JobTimer {
-			JobTimer = partialSolution[x].StartTime + partialSolution[x].Time
+	for x := range ps.Nodes {
+		if node.Job == ps.Nodes[x].Job && ps.StartTimeMap[ps.Nodes[x]] + ps.Nodes[x].Time > JobTimer {
+			JobTimer = ps.StartTimeMap[ps.Nodes[x]] + ps.Nodes[x].Time
 		}
-		if node.Machine == partialSolution[x].Machine && partialSolution[x].StartTime + partialSolution[x].Time > MachineTimer {
-			MachineTimer = partialSolution[x].StartTime + partialSolution[x].Time
+		if node.Machine == ps.Nodes[x].Machine && ps.StartTimeMap[ps.Nodes[x]] + ps.Nodes[x].Time > MachineTimer {
+			MachineTimer = ps.StartTimeMap[ps.Nodes[x]] + ps.Nodes[x].Time
 		}
 	}
 	earliestComp := util.Max(JobTimer, MachineTimer)
@@ -122,17 +128,25 @@ func numberOfAnts(problemGraph graph.Graph) int {
 	return util.Max(10, len(problemGraph.Nodes) / 10)
 }
 
+func InitializePheromoneValues(graph graph.Graph) map[graph.Arc]float64{
+	mapping := make(map[graph.Arc]float64)
+	for _, arc := range graph.Edges {
+		mapping[arc] = constants.InitialPheromone
+	}
+	return mapping
+}
+
 func ACO(problemGraph graph.Graph) {
 	fmt.Println("Running ACO")
+	arcPheroMap := InitializePheromoneValues(problemGraph)
 	var iterationBest []graph.Node		//Sib
 	var bestSoFar []graph.Node			//Sbs
 	var restartBest []graph.Node		//Srb
 	convergenceFactor := 0.0			// cf
 	bsUpdate := false
 	numberOfAnts := numberOfAnts(problemGraph)
-	InitializePheromoneValues(T)
 	for true {
-		solutions := make([][]graph.Node, 0)
+		solutions := make([]Solution, 0)
 		for i := 0; i < numberOfAnts; i++ {
 			solutions = append(solutions, listScheduler(problemGraph))
 		}

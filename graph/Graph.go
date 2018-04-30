@@ -8,14 +8,13 @@ import (
 )
 
 type Node struct {
-	Job, Machine, Time, StartTime, TechStep int
+	Job, Machine, Time, TechStep int
 }
 
 type Arc struct {
 	From, To Node
 	Weight   int
 	Disjunct bool
-	Pheromone float64
 }
 
 type Graph struct {
@@ -24,10 +23,10 @@ type Graph struct {
 	NeighbourList map[Node][]Node
 }
 
-func NodeListToOrderList(nodes []Node) []gantt.Order {
+func NodeListToOrderList(nodes []Node, startTimeMap map[Node]int) []gantt.Order {
 	orders := make([]gantt.Order, 0)
 	for _, n := range nodes {
-		orders = append(orders, gantt.Order{n.Job, n.Machine, n.StartTime, n.Time})
+		orders = append(orders, gantt.Order{n.Job, n.Machine, startTimeMap[n], n.Time})
 	}
 	return orders
 }
@@ -67,8 +66,8 @@ func (g *Graph) findEdge(from, to Node) Arc {
 }
 
 func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
-	source := Node{-1, -1, 0, 0, -1}
-	sink := Node{-1, -1, 0, 0, -1}
+	source := Node{-1, -1, 0, -1}
+	sink := Node{-1, -1, 0, -1}
 	nodes := []Node{}
 	arcs := make([]Arc, 0)
 	machineToNodesMap := make(map[int][]Node)
@@ -77,7 +76,7 @@ func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 	for jobId, requirements := range problemFormulation.Sequences {
 		previous := source
 		for index, requirement := range requirements {
-			node := Node{jobId, requirement.Machine, requirement.Time, 0, index}
+			node := Node{jobId, requirement.Machine, requirement.Time, index}
 			machineToNodesMap[requirement.Machine] = append(machineToNodesMap[requirement.Machine], node)
 			arcs = append(arcs, Arc{previous,
 				node,
