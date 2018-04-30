@@ -60,11 +60,11 @@ func earliestCompletionTime(node graph.Node, partialSolution []graph.Node) int {
 			MachineTimer = partialSolution[x].StartTime + partialSolution[x].Time
 		}
 	}
-	earliestComp := math.Max(float64(JobTimer),float64(MachineTimer)) + float64(node.Time)
+	earliestComp := util.Max(JobTimer, MachineTimer + node.Time)
 	if earliestComp == -1 {
 		return node.Time
 	}
-	return int(earliestComp)
+	return earliestComp
 }
 
 func earliestStartTime(node graph.Node, partialSolution []graph.Node) int {
@@ -81,8 +81,8 @@ func earliestStartTime(node graph.Node, partialSolution []graph.Node) int {
 			MachineTimer = partialSolution[x].StartTime + partialSolution[x].Time
 		}
 	}
-	earliestComp := math.Max(float64(JobTimer),float64(MachineTimer))
-	return int(math.Max(earliestComp, 0))
+	earliestComp := util.Max(JobTimer, MachineTimer)
+	return util.Max(earliestComp, 0)
 }
 
 func restrict(partialSolution []graph.Node, unVisited []graph.Node) []graph.Node {
@@ -95,7 +95,6 @@ func restrict(partialSolution []graph.Node, unVisited []graph.Node) []graph.Node
 	}
 	for x := range unVisited {
 		if earliestStartTime(unVisited[x], partialSolution) <= tStar && preStepsExecuted(unVisited[x],partialSolution) {
-
 			restrictedSet = append(restrictedSet, unVisited[x])
 		}
 	}
