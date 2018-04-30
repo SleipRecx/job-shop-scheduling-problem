@@ -4,6 +4,7 @@ import (
 	"../graph"
 	_ "../constants"
 	"../gantt"
+	"../util"
 	"fmt"
 	"math"
 	"math/rand"
@@ -116,6 +117,10 @@ func preStepsExecuted(node graph.Node, partialSolution []graph.Node) bool {
 
 func chooseRandom(candidates []graph.Node) graph.Node {
 	return candidates[rand.Intn(len(candidates))]
+}
+
+func numberOfAnts(problemGraph graph.Graph) int {
+	return util.Max(10, len(problemGraph.Nodes) / 10)
 }
 
 func ACO(problemGraph graph.Graph) {
