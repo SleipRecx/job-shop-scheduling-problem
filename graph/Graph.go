@@ -3,6 +3,7 @@ package graph
 import (
 	"../io"
 	"../constants"
+	"../gantt"
 	"math"
 )
 
@@ -21,6 +22,14 @@ type Graph struct {
 	Edges []Arc
 	Nodes []Node
 	NeighbourList map[Node][]Node
+}
+
+func NodeListToOrderList(nodes []Node) []gantt.Order {
+	orders := make([]gantt.Order, 0)
+	for _, n := range nodes {
+		orders = append(orders, gantt.Order{n.Job, n.Machine, n.StartTime, n.Time})
+	}
+	return orders
 }
 
 // Probability of moving from node i to node j

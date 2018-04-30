@@ -27,7 +27,7 @@ func CreateChart(path string, nMachines int, nJobs int, orders []Order) {
 	}
 	// Machine labels
 	for i := 0; i < nMachines; i++ {
-		label := "M" + strconv.Itoa(i+1)
+		label := "M" + strconv.Itoa(i)
 		cell := "A" + strconv.Itoa(i+1)
 		xlsx.SetCellValue("Sheet1", cell, label)
 		xlsx.SetCellStyle("Sheet1", cell, cell, machineStyle)
@@ -70,12 +70,16 @@ func CreateChart(path string, nMachines int, nJobs int, orders []Order) {
 }
 
 func addJobToExcel(xlsx *excelize.File, colorMap map[int]string, order Order) {
-	row := strconv.Itoa(order.MachineID)
+	row := strconv.Itoa(order.MachineID+1)
 	cellStyle, err := xlsx.NewStyle(generateBGStyle(colorMap[order.JobID]))
+	shouldAddLabel := true
 	if err == nil {
 		for i := 0; i < order.Duration; i++ {
 			col := timeToExcelCol(order.Time + i)
-			//xlsx.SetCellValue("Sheet1", col+row, "X")
+			if shouldAddLabel {
+				xlsx.SetCellValue("Sheet1", col+row, order.Duration)
+				shouldAddLabel = false
+			}
 			xlsx.SetCellStyle("Sheet1", col+row, col+row, cellStyle)
 		}
 	}

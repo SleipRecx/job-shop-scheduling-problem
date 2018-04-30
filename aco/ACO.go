@@ -3,6 +3,7 @@ package aco
 import (
 	"../graph"
 	_ "../constants"
+	"../gantt"
 	"fmt"
 	"math"
 	"math/rand"
@@ -11,7 +12,7 @@ import (
 func removeFromList(list []graph.Node, element graph.Node) []graph.Node {
 	newList := make([]graph.Node, 0)
 	for _, node := range list {
-		if node != element {
+		if !(node.Job == element.Job && node.Machine == element.Machine) {
 			newList = append(newList, node)
 		}
 	}
@@ -108,4 +109,6 @@ func ACO(problemGraph graph.Graph) {
 	solution := listScheduler(problemGraph)
 	fmt.Println("Solution: ", solution)
 	fmt.Println("Makespan: ", calculateMakespan(solution))
+	orders := graph.NodeListToOrderList(solution)
+	gantt.CreateChart("03 - Program Outputs/Chart.xlsx", 6, 6, orders)
 }
