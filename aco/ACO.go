@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"go/constant"
 )
 
 func removeFromList(list []graph.Node, element graph.Node) []graph.Node {
@@ -136,10 +135,22 @@ func InitializePheromoneValues(graph graph.Graph) map[graph.Arc]float64{
 	return mapping
 }
 
+func SolutionWithMinimalMakeSpan(solutions []Solution) Solution {
+	minMakespan := math.MaxInt32
+	var bestSolution Solution
+	for _, sol := range solutions {
+		if ms := calculateMakespan(sol); ms < minMakespan {
+			minMakespan = ms
+			bestSolution = sol
+		}
+	}
+	return bestSolution
+}
+
 func ACO(problemGraph graph.Graph) {
 	fmt.Println("Running ACO")
 	arcPheroMap := InitializePheromoneValues(problemGraph)
-	var iterationBest []graph.Node		//Sib
+	var iterationBest Solution		//Sib
 	var bestSoFar []graph.Node			//Sbs
 	var restartBest []graph.Node		//Srb
 	convergenceFactor := 0.0			// cf
