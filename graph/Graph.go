@@ -2,9 +2,7 @@ package graph
 
 import (
 	"../io"
-	"../constants"
 	"../gantt"
-	"math"
 )
 
 type Node struct {
@@ -32,20 +30,20 @@ func NodeListToOrderList(nodes []Node, startTimeMap map[Node]int) []gantt.Order 
 }
 
 // Probability of moving from node i to node j
-func (g *Graph) P(i, j Node) float64 {
-	if !g.isNeighbour(i,j) {
-		return 0.0
-	}
-	edgeBetween := g.findEdge(i,j)
-	over := math.Pow(edgeBetween.Pheromone, constants.PheromoneFactor) * math.Pow(float64(edgeBetween.Weight), constants.WeightFactor)
-
-	under := 0.0
-	for x := range g.NeighbourList[i] {
-		tempEdge := g.findEdge(i, g.NeighbourList[i][x])
-		under += math.Pow(tempEdge.Pheromone, constants.PheromoneFactor) * math.Pow(float64(tempEdge.Weight), constants.WeightFactor)
-	}
-	return over / under
-}
+//func (g *Graph) P(i, j Node) float64 {
+//	if !g.isNeighbour(i,j) {
+//		return 0.0
+//	}
+//	edgeBetween := g.findEdge(i,j)
+//	over := math.Pow(edgeBetween.Pheromone, constants.PheromoneFactor) * math.Pow(float64(edgeBetween.Weight), constants.WeightFactor)
+//
+//	under := 0.0
+//	for x := range g.NeighbourList[i] {
+//		tempEdge := g.findEdge(i, g.NeighbourList[i][x])
+//		under += math.Pow(tempEdge.Pheromone, constants.PheromoneFactor) * math.Pow(float64(tempEdge.Weight), constants.WeightFactor)
+//	}
+//	return over / under
+//}
 
 func (g *Graph) isNeighbour(i, j Node) bool {
 	for x := range g.NeighbourList[i] {
@@ -81,16 +79,14 @@ func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 			arcs = append(arcs, Arc{previous,
 				node,
 				previous.Time,
-				false,
-				constants.InitialPheromone})
+				false})
 			nodes = append(nodes, node)
 			previous = node
 		}
 		arcs = append(arcs, Arc{previous,
 			sink,
 			previous.Time,
-			false,
-			constants.InitialPheromone})
+			false})
 	}
 
 	// Create disjunctive arcs (jobs belonging to machines)
@@ -100,8 +96,7 @@ func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 				arcs = append(arcs, Arc{nodePtrs[i],
 					nodePtrs[j],
 					nodePtrs[i].Time,
-					true,
-					constants.InitialPheromone})
+					true})
 			}
 		}
 	}
