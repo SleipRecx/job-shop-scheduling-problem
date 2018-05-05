@@ -1,11 +1,11 @@
 package main
 
 import (
-	"./io"
-	"./graph"
-	"fmt"
-	"./constants"
 	"./aco"
+	"./constants"
+	"./graph"
+	"./io"
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -13,7 +13,7 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	fmt.Println("Job Shop Scheduling Problem")
-	problemFormulation := io.ReadProblem(1)
+	problemFormulation := io.ReadProblem(9)
 	constants.InitialPheromone = 0.5
 	constants.Ants = 2
 	constants.WeightFactor = 1.0

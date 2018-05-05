@@ -1,11 +1,11 @@
 package gantt
 
 import (
+	"../constants"
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/lucasb-eyer/go-colorful"
 	"strconv"
-	"../constants"
 )
 
 // TODO: Move and change to represent actual job etc.
@@ -71,7 +71,7 @@ func CreateChart(path string, orders []Order) {
 }
 
 func addJobToExcel(xlsx *excelize.File, colorMap map[int]string, order Order) {
-	row := strconv.Itoa(order.MachineID+1)
+	row := strconv.Itoa(order.MachineID + 1)
 	cellStyle, err := xlsx.NewStyle(generateBGStyle(colorMap[order.JobID]))
 	shouldAddLabel := true
 	if err == nil {

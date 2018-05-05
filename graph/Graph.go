@@ -1,8 +1,8 @@
 package graph
 
 import (
-	"../io"
 	"../gantt"
+	"../io"
 )
 
 type Node struct {
@@ -16,8 +16,8 @@ type Arc struct {
 }
 
 type Graph struct {
-	Edges []Arc
-	Nodes []Node
+	Edges         []Arc
+	Nodes         []Node
 	NeighbourList map[Node][]Node
 }
 
