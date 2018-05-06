@@ -8,4 +8,10 @@ var (
 	Ants             int
 	NMachines        int
 	NJobs            int
+	ProblemNumber	 int
+	TargetValues	 map[int]int
+	TMax			 float64
+	TMin			 float64
+	Beta			 float64
 )
+

@@ -11,8 +11,6 @@ type Node struct {
 
 type Arc struct {
 	From, To Node
-	Weight   int
-	Disjunct bool
 }
 
 type Graph struct {
@@ -77,16 +75,12 @@ func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 			node := Node{jobId, requirement.Machine, requirement.Time, index}
 			machineToNodesMap[requirement.Machine] = append(machineToNodesMap[requirement.Machine], node)
 			arcs = append(arcs, Arc{previous,
-				node,
-				previous.Time,
-				false})
+				node})
 			nodes = append(nodes, node)
 			previous = node
 		}
 		arcs = append(arcs, Arc{previous,
-			sink,
-			previous.Time,
-			false})
+			sink})
 	}
 
 	// Create disjunctive arcs (jobs belonging to machines)
@@ -94,9 +88,7 @@ func MakeGraph(problemFormulation io.ProblemFormulation) Graph {
 		for i := range nodePtrs {
 			for j := i; j < len(nodePtrs); j++ {
 				arcs = append(arcs, Arc{nodePtrs[i],
-					nodePtrs[j],
-					nodePtrs[i].Time,
-					true})
+					nodePtrs[j]})
 			}
 		}
 	}

@@ -5,9 +5,10 @@ import (
 	"../util"
 	"math"
 	"math/rand"
+	"../constants"
 )
 
-func listScheduler(problemGraph graph.Graph) Solution {
+func listScheduler(problemGraph graph.Graph, arcPheroMap map[graph.Arc]float64) Solution {
 	startTimeMap := make(map[graph.Node]int)
 	partialSolution := make([]graph.Node, 0)
 	unvisited := make([]graph.Node, len(problemGraph.Nodes))
@@ -74,9 +75,6 @@ func preStepsExecuted(node graph.Node, partialSolution []graph.Node) bool {
 	return false
 }
 
-func chooseRandom(candidates []graph.Node) graph.Node {
-	return candidates[rand.Intn(len(candidates))]
-}
 
 func restrict(partialSolution Solution, unVisited []graph.Node) []graph.Node {
 	tStar := math.MaxInt32
@@ -92,4 +90,57 @@ func restrict(partialSolution Solution, unVisited []graph.Node) []graph.Node {
 		}
 	}
 	return restrictedSet
+}
+
+func chooseRandom(candidates []graph.Node) graph.Node {
+	return candidates[rand.Intn(len(candidates))]
+}
+
+func contains(list []graph.Node, item graph.Node) bool {
+	for i := range list {
+		if list[i] == item {
+			return true
+		}
+	}
+	return false
+}
+//TODO: Implement
+func eta(n graph.Node) float64 {
+	return 1.0
+}
+
+func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float64) graph.Node {
+	probabilities := make(map[graph.Node]float64)
+
+	denominator := 0.0
+	for _, n := range candidates {
+		min := math.MaxFloat64
+		for _, u := range unvisited {
+			if n.Machine == u.Machine && u != n {
+				v := arcPheroMap[graph.Arc{n, u}] * math.Pow(eta(n), constants.Beta)
+				if v < min {
+					min = v
+				}
+			}
+		}
+		denominator += min
+	}
+
+	for _, n := range candidates {
+		intersection := make([]graph.Node, 0)
+		for _, u := range unvisited {
+			if n.Machine == u.Machine && n != u{
+				intersection = append(intersection, u)
+			}
+		}
+		numerator := math.MaxFloat64
+		for j := range intersection {
+			v := arcPheroMap[graph.Arc{n, intersection[j]}] * math.Pow(eta(n), constants.Beta)
+			if v < numerator {
+				numerator = v
+			}
+		}
+		probabilities[n] = numerator / denominator
+	}
+	
 }
