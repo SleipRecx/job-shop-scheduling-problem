@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/rand"
 	"../constants"
+	"fmt"
 )
 
 func listScheduler(problemGraph graph.Graph, arcPheroMap map[graph.Arc]float64) Solution {
@@ -15,7 +16,7 @@ func listScheduler(problemGraph graph.Graph, arcPheroMap map[graph.Arc]float64) 
 	copy(unvisited, problemGraph.Nodes)
 	for range problemGraph.Nodes {
 		unvisitedPrime := restrict(Solution{startTimeMap, partialSolution}, unvisited)
-		nodeStar := chooseRandom(unvisitedPrime)
+		nodeStar := choose(unvisitedPrime, unvisited, arcPheroMap, Solution{startTimeMap, partialSolution})
 		startTimeMap[nodeStar] = earliestStartTime(nodeStar, Solution{startTimeMap, partialSolution})
 		partialSolution = append(partialSolution, nodeStar)
 		unvisited = removeFromList(unvisited, nodeStar)
@@ -96,20 +97,18 @@ func chooseRandom(candidates []graph.Node) graph.Node {
 	return candidates[rand.Intn(len(candidates))]
 }
 
-func contains(list []graph.Node, item graph.Node) bool {
-	for i := range list {
-		if list[i] == item {
-			return true
-		}
-	}
-	return false
-}
+
 //TODO: Implement
-func eta(n graph.Node) float64 {
-	return 1.0
+func eta(n graph.Node, ps Solution, candidates []graph.Node) float64 {
+	numerator := 1.0 / float64(earliestStartTime(n, ps)) + 1.0
+	denominator := 0.0
+	for _, k := range candidates {
+		denominator += 1.0 / float64(earliestStartTime(k, ps)) + 1.0
+	}
+	return numerator / denominator
 }
 
-func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float64) graph.Node {
+func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float64, ps Solution) graph.Node {
 	probabilities := make(map[graph.Node]float64)
 
 	denominator := 0.0
@@ -117,7 +116,7 @@ func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float6
 		min := math.MaxFloat64
 		for _, u := range unvisited {
 			if n.Machine == u.Machine && u != n {
-				v := arcPheroMap[graph.Arc{n, u}] * math.Pow(eta(n), constants.Beta)
+				v := arcPheroMap[graph.Arc{n, u}] * math.Pow(eta(n, ps, candidates), constants.Beta)
 				if v < min {
 					min = v
 				}
@@ -135,12 +134,13 @@ func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float6
 		}
 		numerator := math.MaxFloat64
 		for j := range intersection {
-			v := arcPheroMap[graph.Arc{n, intersection[j]}] * math.Pow(eta(n), constants.Beta)
+			v := arcPheroMap[graph.Arc{n, intersection[j]}] * math.Pow(eta(n, ps, candidates), constants.Beta)
 			if v < numerator {
 				numerator = v
 			}
 		}
 		probabilities[n] = numerator / denominator
 	}
-	
+	fmt.Println(probabilities)
+	return chooseRandom(candidates)
 }
