@@ -97,13 +97,12 @@ func chooseRandom(candidates []graph.Node) graph.Node {
 	return candidates[rand.Intn(len(candidates))]
 }
 
-
-//TODO: Implement
+// Tror denne er good
 func eta(n graph.Node, ps Solution, candidates []graph.Node) float64 {
 	numerator := 1.0 / float64(earliestStartTime(n, ps)) + 1.0
 	denominator := 0.0
 	for _, k := range candidates {
-		denominator += 1.0 / float64(earliestStartTime(k, ps)) + 1.0
+		denominator += 1.0 / (float64(earliestStartTime(k, ps)) + 1.0)
 	}
 	return numerator / denominator
 }
@@ -111,6 +110,7 @@ func eta(n graph.Node, ps Solution, candidates []graph.Node) float64 {
 func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float64, ps Solution) graph.Node {
 	probabilities := make(map[graph.Node]float64)
 
+	// both 0 and +Inf
 	denominator := 0.0
 	for _, n := range candidates {
 		min := math.MaxFloat64
@@ -122,9 +122,10 @@ func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float6
 				}
 			}
 		}
-		denominator += min
+		if min != math.MaxFloat64 {
+			denominator += min
+		}
 	}
-
 	for _, n := range candidates {
 		intersection := make([]graph.Node, 0)
 		for _, u := range unvisited {
@@ -139,7 +140,14 @@ func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float6
 				numerator = v
 			}
 		}
-		probabilities[n] = numerator / denominator
+		if numerator == math.MaxFloat64 {
+			numerator = 0
+		}
+		if denominator == 0 {
+			probabilities[n] = 0
+		} else {
+			probabilities[n] = numerator / denominator
+		}
 	}
 	fmt.Println(probabilities)
 	return chooseRandom(candidates)
