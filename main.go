@@ -30,7 +30,7 @@ func main() {
 		6: 979,
 	}
 
-	constants.ProblemNumber = 1
+	constants.ProblemNumber = 3
 
 	problemFormulation := io.ReadProblem(constants.ProblemNumber)
 	constants.NMachines = problemFormulation.NMachines

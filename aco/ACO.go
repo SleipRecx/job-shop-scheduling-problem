@@ -156,7 +156,7 @@ func isDone(solution Solution) bool {
 	if len(solution.Nodes) == 0 {
 		return false
 	}
-	return calculateMakespan(solution) <= constants.TargetValues[constants.ProblemNumber]
+	return float64(calculateMakespan(solution)) < 1.1 * float64(constants.TargetValues[constants.ProblemNumber])
 }
 
 func Update(original, candidate Solution) Solution {
@@ -223,7 +223,7 @@ func ACO(problemGraph graph.Graph) {
 	for !isDone(bestSoFar) {
 		counter += 1
 		if counter % 10 == 0 {
-			fmt.Println("Iteration", counter)
+			fmt.Println("Iteration", counter, "Makespan", calculateMakespan(bestSoFar))
 		}
 		solutions := make([]Solution, 0)
 		for i := 0; i < numberOfAnts; i++ {

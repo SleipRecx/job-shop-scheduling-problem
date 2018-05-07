@@ -6,7 +6,6 @@ import (
 	"math"
 	"math/rand"
 	"../constants"
-	"fmt"
 )
 
 func listScheduler(problemGraph graph.Graph, arcPheroMap map[graph.Arc]float64) Solution {
@@ -149,6 +148,6 @@ func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float6
 			probabilities[n] = numerator / denominator
 		}
 	}
-	fmt.Println(probabilities)
+	//fmt.Println(probabilities)
 	return chooseRandom(candidates)
 }
