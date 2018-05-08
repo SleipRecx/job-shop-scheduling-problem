@@ -1,4 +1,4 @@
-package aco
+package jssp
 
 import (
 	"../graph"
@@ -9,14 +9,29 @@ import (
 	"fmt"
 )
 
-func listScheduler(problemGraph graph.Graph, arcPheroMap map[graph.Arc]float64) Solution {
+func removeFromList(list []graph.Node, element graph.Node) []graph.Node {
+	newList := make([]graph.Node, 0)
+	for _, node := range list {
+		if !(node.Job == element.Job && node.Machine == element.Machine) {
+			newList = append(newList, node)
+		}
+	}
+	return newList
+}
+
+func ListScheduler(problemGraph graph.Graph, arcPheroMap map[graph.Arc]float64, useRandom bool) Solution {
 	startTimeMap := make(map[graph.Node]int)
 	partialSolution := make([]graph.Node, 0)
 	unvisited := make([]graph.Node, len(problemGraph.Nodes))
 	copy(unvisited, problemGraph.Nodes)
 	for range problemGraph.Nodes {
 		unvisitedPrime := restrict(Solution{startTimeMap, partialSolution}, unvisited)
-		nodeStar := choose(unvisitedPrime, unvisited, arcPheroMap, Solution{startTimeMap, partialSolution})
+		var nodeStar graph.Node
+		if useRandom {
+			nodeStar = chooseRandom(unvisitedPrime)
+		} else {
+			nodeStar = choose(unvisitedPrime, unvisited, arcPheroMap, Solution{startTimeMap, partialSolution})
+		}
 		startTimeMap[nodeStar] = earliestStartTime(nodeStar, Solution{startTimeMap, partialSolution})
 		partialSolution = append(partialSolution, nodeStar)
 		unvisited = removeFromList(unvisited, nodeStar)
@@ -172,7 +187,5 @@ func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float6
 			probabilities[n] = numerator / denominator
 		}
 	}
-	//fmt.Println(probabilities)
 	return randomChoiceWithProbability(probabilities)
-	//return chooseRandom(candidates)
 }
