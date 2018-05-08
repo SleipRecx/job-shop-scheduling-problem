@@ -4,8 +4,8 @@ import (
 	"./constants"
 	"./graph"
 	"./io"
-	"./ba"
 	"./aco"
+	"./ba"
 	"fmt"
 	"math/rand"
 	"time"
@@ -15,10 +15,7 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	fmt.Println("Job Shop Scheduling Problem")
 	constants.InitialPheromone = 0.5
-	constants.Ants = 2
-	constants.WeightFactor = 1.0
-	constants.PheromoneFactor = 1.0
-	constants.EvaporationRate = 0.01
+	constants.EvaporationRate = 0.1
 	constants.TMax = 0.999
 	constants.TMin = 0.001
 	constants.Beta = 10
@@ -35,7 +32,7 @@ func main() {
 		5: 1451,
 		6: 979,
 	}
-	constants.Iterations = 50
+	constants.Iterations = 500
 	constants.ProblemNumber = 3
 	problemFormulation := io.ReadProblem(constants.ProblemNumber)
 	constants.NMachines = problemFormulation.NMachines

@@ -101,13 +101,14 @@ func ACO(problemGraph graph.Graph) {
 			solutions[i] = jssp.ApplyLocalSearch(solutions[i])
 		}
 		iterationBest = jssp.SolutionWithMinimalMakeSpan(solutions)
-		//EliteAction(iterationBest)
 		bestSoFar = Update(bestSoFar, iterationBest)
 		restartBest = Update(restartBest, iterationBest)
 
 		arcPheroMap, convergenceFactor = ApplyPheromoneUpdate(convergenceFactor, bsUpdate, arcPheroMap, restartBest, bestSoFar)
+
 		if convergenceFactor > 0.99 {
 			if bsUpdate {
+				fmt.Println("REset")
 				arcPheroMap = InitializePheromoneValues(problemGraph)
 				restartBest = jssp.Solution{}
 				bsUpdate = false

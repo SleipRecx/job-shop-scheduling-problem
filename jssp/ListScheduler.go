@@ -148,7 +148,6 @@ func randomChoiceWithProbability(probabilities map[graph.Node]float64) graph.Nod
 func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float64, ps Solution) graph.Node {
 	probabilities := make(map[graph.Node]float64)
 
-	// both 0 and +Inf
 	denominator := 0.0
 	for _, n := range candidates {
 		min := math.MaxFloat64
