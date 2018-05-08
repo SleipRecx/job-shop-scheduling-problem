@@ -27,22 +27,6 @@ func NodeListToOrderList(nodes []Node, startTimeMap map[Node]int) []gantt.Order 
 	return orders
 }
 
-// Probability of moving from node i to node j
-//func (g *Graph) P(i, j Node) float64 {
-//	if !g.isNeighbour(i,j) {
-//		return 0.0
-//	}
-//	edgeBetween := g.findEdge(i,j)
-//	over := math.Pow(edgeBetween.Pheromone, constants.PheromoneFactor) * math.Pow(float64(edgeBetween.Weight), constants.WeightFactor)
-//
-//	under := 0.0
-//	for x := range g.NeighbourList[i] {
-//		tempEdge := g.findEdge(i, g.NeighbourList[i][x])
-//		under += math.Pow(tempEdge.Pheromone, constants.PheromoneFactor) * math.Pow(float64(tempEdge.Weight), constants.WeightFactor)
-//	}
-//	return over / under
-//}
-
 func (g *Graph) isNeighbour(i, j Node) bool {
 	for x := range g.NeighbourList[i] {
 		if g.NeighbourList[i][x] == j {

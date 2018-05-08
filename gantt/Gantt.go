@@ -18,7 +18,7 @@ type Order struct {
 
 func CreateChart(path string, orders []Order) {
 	xlsx := excelize.NewFile()
-	xlsx.SetColWidth("Sheet1", "B", "ZZZ", 3)
+	xlsx.SetColWidth("Sheet1", "B", "ZZZ", 3.5)
 	xlsx.SetColWidth("Sheet1", "A", "A", 5)
 
 	machineStyle, err := xlsx.NewStyle(`{"alignment":{"horizontal": "center"}, 
@@ -34,7 +34,7 @@ func CreateChart(path string, orders []Order) {
 		xlsx.SetCellStyle("Sheet1", cell, cell, machineStyle)
 	}
 	// Time numbering
-	for i := 0; i < 200; i++ {
+	for i := 0; i < 2000; i++ {
 		row := strconv.Itoa(constants.NMachines + 1)
 		col := timeToExcelCol(i)
 		if i%5 == 0 {

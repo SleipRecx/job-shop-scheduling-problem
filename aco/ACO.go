@@ -219,12 +219,11 @@ func ACO(problemGraph graph.Graph) {
 	convergenceFactor := 0.0			// cf
 	bsUpdate := false
 	numberOfAnts := numberOfAnts(problemGraph)
-	counter := 0
+	iterationCount := 0
 	for !isDone(bestSoFar) {
-		counter += 1
-		if counter % 10 == 0 {
-			fmt.Println("Iteration", counter, "Makespan", calculateMakespan(bestSoFar))
-		}
+		iterationCount += 1
+		fmt.Println("Iteration", iterationCount, "Best makespan", calculateMakespan(bestSoFar))
+
 		solutions := make([]Solution, 0)
 		for i := 0; i < numberOfAnts; i++ {
 			solutions = append(solutions, listScheduler(problemGraph, arcPheroMap))

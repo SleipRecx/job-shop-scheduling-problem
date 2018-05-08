@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/rand"
 	"../constants"
+	"fmt"
 )
 
 func listScheduler(problemGraph graph.Graph, arcPheroMap map[graph.Arc]float64) Solution {
@@ -96,7 +97,7 @@ func chooseRandom(candidates []graph.Node) graph.Node {
 	return candidates[rand.Intn(len(candidates))]
 }
 
-// Tror denne er good
+
 func eta(n graph.Node, ps Solution, candidates []graph.Node) float64 {
 	numerator := 1.0 / float64(earliestStartTime(n, ps)) + 1.0
 	denominator := 0.0
@@ -104,6 +105,29 @@ func eta(n graph.Node, ps Solution, candidates []graph.Node) float64 {
 		denominator += 1.0 / (float64(earliestStartTime(k, ps)) + 1.0)
 	}
 	return numerator / denominator
+}
+
+func randomChoiceWithProbability(probabilities map[graph.Node]float64) graph.Node{
+	sum := 0.0
+	nodes := make([]graph.Node, 0)
+	for k, v := range probabilities {
+		sum += v
+		nodes = append(nodes, k)
+	}
+	if sum < 0.9 {
+		return chooseRandom(nodes)
+	}
+
+	r := rand.Float64()
+	upto := 0.0
+	for k, v := range probabilities {
+		if upto + v >= r{
+			return k
+		}
+		upto += v
+	}
+	fmt.Println("Uh oh")
+	return randomChoiceWithProbability(probabilities)
 }
 
 func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float64, ps Solution) graph.Node {
@@ -149,5 +173,6 @@ func choose(candidates, unvisited []graph.Node, arcPheroMap map[graph.Arc]float6
 		}
 	}
 	//fmt.Println(probabilities)
-	return chooseRandom(candidates)
+	return randomChoiceWithProbability(probabilities)
+	//return chooseRandom(candidates)
 }
