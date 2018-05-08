@@ -1,10 +1,10 @@
 package main
 
 import (
-	"./aco"
 	"./constants"
 	"./graph"
 	"./io"
+	"./ba"
 	"fmt"
 	"math/rand"
 	"time"
@@ -21,6 +21,11 @@ func main() {
 	constants.TMax = 0.999
 	constants.TMin = 0.001
 	constants.Beta = 10
+	constants.Scouts = 50
+	constants.NBest = 5
+	constants.NRB = 1
+	constants.NElites = 2
+	constants.NRE = 2
 	constants.TargetValues = map[int]int{
 		1: 56,
 		2: 1059,
@@ -31,11 +36,10 @@ func main() {
 	}
 
 	constants.ProblemNumber = 3
-
 	problemFormulation := io.ReadProblem(constants.ProblemNumber)
 	constants.NMachines = problemFormulation.NMachines
 	constants.NJobs = problemFormulation.NJobs
 	problemGraph := graph.MakeGraph(problemFormulation)
-	aco.ACO(problemGraph)
-
+	//aco.ACO(problemGraph)
+	ba.BA(problemGraph)
 }

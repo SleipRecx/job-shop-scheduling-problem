@@ -6,6 +6,11 @@ var (
 	EvaporationRate  float64
 	InitialPheromone float64
 	Ants             int
+	Scouts			 int
+	NBest			 int
+	NRB				 int
+	NElites			 int
+	NRE				 int
 	NMachines        int
 	NJobs            int
 	ProblemNumber	 int

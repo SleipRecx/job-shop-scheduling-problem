@@ -2,6 +2,7 @@ package jssp
 
 import (
 	"../graph"
+	"../constants"
 	"math"
 	"math/rand"
 )
@@ -19,6 +20,14 @@ func CalculateMakespan(solution Solution) int {
 		}
 	}
 	return max
+}
+
+func MakeSpan2(solution Solution) int {
+	ms := CalculateMakespan(solution)
+	if ms == 0 {
+		return math.MaxInt32
+	}
+	return ms
 }
 
 func SolutionWithMinimalMakeSpan(solutions []Solution) Solution {
@@ -123,4 +132,49 @@ func ApplyLocalSearch(solution Solution) Solution{
 		return Solution{newStartTimeMap, newNodes}
 	}
 	return solution
+}
+
+func IsDone(solution Solution) bool {
+	if len(solution.Nodes) == 0 {
+		return false
+	}
+	return float64(CalculateMakespan(solution)) < 1.1 * float64(constants.TargetValues[constants.ProblemNumber])
+}
+
+func GenerateNeighbourHood(solution Solution) []Solution {
+	criticalPath := FindCriticalPath(solution.Nodes)
+	blocks := make([][]graph.Node, 0)
+	currentBlock := []graph.Node{criticalPath[0]}
+	for i := 1; i < len(criticalPath); i++ {
+		if criticalPath[i].Machine == currentBlock[len(currentBlock)-1].Machine {
+			currentBlock = append(currentBlock, criticalPath[i])
+		} else {
+			blocks = append(blocks, currentBlock)
+			currentBlock = []graph.Node{criticalPath[i]}
+		}
+	}
+	blocks = append(blocks, currentBlock)
+
+	neighbours := []Solution{solution}
+	for _, block := range blocks {
+		if len(block) >= 2 {
+			for i := 0; i < len(block) - 1; i++ {
+				// Create new possible solution by copying old one
+				newNodes := make([]graph.Node, 0)
+				newStartTimeMap := make(map[graph.Node]int)
+				for _, n := range solution.Nodes {
+					newNodes = append(newNodes, n)
+				}
+				for k, v := range solution.StartTimeMap {
+					newStartTimeMap[k] = v
+				}
+				startTime0 := newStartTimeMap[block[i]] + block[i+1].Time
+				startTime1 := newStartTimeMap[block[i]]
+				newStartTimeMap[block[i]] = startTime0
+				newStartTimeMap[block[i+1]] = startTime1
+				neighbours = append(neighbours, Solution{newStartTimeMap, newNodes})
+			}
+		}
+	}
+	return neighbours
 }

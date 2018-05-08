@@ -28,13 +28,6 @@ func InitializePheromoneValues(problemGraph graph.Graph) map[graph.Arc]float64 {
 }
 
 
-func isDone(solution jssp.Solution) bool {
-	if len(solution.Nodes) == 0 {
-		return false
-	}
-	return float64(jssp.CalculateMakespan(solution)) < 1.1 * float64(constants.TargetValues[constants.ProblemNumber])
-}
-
 func Update(original, candidate jssp.Solution) jssp.Solution {
 	if len(original.Nodes) == 0 {
 		return  candidate
@@ -96,7 +89,7 @@ func ACO(problemGraph graph.Graph) {
 	bsUpdate := false
 	numberOfAnts := numberOfAnts(problemGraph)
 	iterationCount := 0
-	for !isDone(bestSoFar) {
+	for !jssp.IsDone(bestSoFar) {
 		iterationCount += 1
 		fmt.Println("Iteration", iterationCount, "Best makespan", jssp.CalculateMakespan(bestSoFar))
 
@@ -127,6 +120,6 @@ func ACO(problemGraph graph.Graph) {
 	fmt.Println("Done!")
 	fmt.Println("Makespan:", jssp.CalculateMakespan(bestSoFar))
 	orders := graph.NodeListToOrderList(bestSoFar.Nodes, bestSoFar.StartTimeMap)
-	gantt.CreateChart("03 - Program Outputs/Chart_" + strconv.Itoa(constants.ProblemNumber) + ".xlsx", orders)
+	gantt.CreateChart("03 - Program Outputs/ACO_Chart_" + strconv.Itoa(constants.ProblemNumber) + ".xlsx", orders)
 
 }
