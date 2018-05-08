@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"errors"
 	"../gantt"
+	"strconv"
 )
 
 func removeFromList(list []graph.Node, element graph.Node) []graph.Node {
@@ -251,6 +252,6 @@ func ACO(problemGraph graph.Graph) {
 	fmt.Println("Done!")
 	fmt.Println("Makespan:", calculateMakespan(bestSoFar))
 	orders := graph.NodeListToOrderList(bestSoFar.Nodes, bestSoFar.StartTimeMap)
-	gantt.CreateChart("03 - Program Outputs/Chart.xlsx", orders)
+	gantt.CreateChart("03 - Program Outputs/Chart_" + strconv.Itoa(constants.ProblemNumber) + ".xlsx", orders)
 
 }
