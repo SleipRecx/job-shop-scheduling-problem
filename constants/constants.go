@@ -18,5 +18,6 @@ var (
 	TMax			 float64
 	TMin			 float64
 	Beta			 float64
+	Iterations		 int
 )
 

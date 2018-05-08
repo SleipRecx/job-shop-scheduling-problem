@@ -81,6 +81,7 @@ func ApplyPheromoneUpdate(cf float64, bsUpdate bool, arcPheroMap map[graph.Arc]f
 
 func ACO(problemGraph graph.Graph) {
 	fmt.Println("Running ACO")
+	datapoints := make([]gantt.DataPoint, 0)
 	arcPheroMap := InitializePheromoneValues(problemGraph)
 	var iterationBest jssp.Solution		//Sib
 	var bestSoFar jssp.Solution			//Sbs
@@ -88,10 +89,9 @@ func ACO(problemGraph graph.Graph) {
 	convergenceFactor := 0.0			// cf
 	bsUpdate := false
 	numberOfAnts := numberOfAnts(problemGraph)
-	iterationCount := 0
-	for !jssp.IsDone(bestSoFar) {
-		iterationCount += 1
-		fmt.Println("Iteration", iterationCount, "Best makespan", jssp.CalculateMakespan(bestSoFar))
+
+	for c := 0; c < constants.Iterations; c++ {
+		fmt.Println("Iteration", c, "Best makespan", jssp.CalculateMakespan(bestSoFar))
 
 		solutions := make([]jssp.Solution, 0)
 		for i := 0; i < numberOfAnts; i++ {
@@ -115,11 +115,23 @@ func ACO(problemGraph graph.Graph) {
 				bsUpdate = true
 			}
 		}
+		// For stats
+		mss := make([]int, 0)
+		for _, b := range solutions {
+			mss = append(mss, jssp.CalculateMakespan(b))
+		}
+		mss = append(mss, jssp.CalculateMakespan(bestSoFar))
+		datapoints = append(datapoints, gantt.DataPoint{Iteration:c, MakeSpans:mss})
+
+		if jssp.IsDone(bestSoFar) {
+			break
+		}
 	}
 
 	fmt.Println("Done!")
 	fmt.Println("Makespan:", jssp.CalculateMakespan(bestSoFar))
 	orders := graph.NodeListToOrderList(bestSoFar.Nodes, bestSoFar.StartTimeMap)
+	gantt.CreateSummaryGraph("03 - Program Outputs/ACO_Stats_" + strconv.Itoa(constants.ProblemNumber) + ".xlsx", datapoints)
 	gantt.CreateChart("03 - Program Outputs/ACO_Chart_" + strconv.Itoa(constants.ProblemNumber) + ".xlsx", orders)
 
 }
